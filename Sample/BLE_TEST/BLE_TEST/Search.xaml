@@ -5,11 +5,18 @@
              x:Class="BLE_TEST.Search">
 
     <StackLayout>
-        <StackLayout   HorizontalOptions="FillAndExpand">
+        <!--<StackLayout   HorizontalOptions="FillAndExpand">
              <ActivityIndicator HorizontalOptions="CenterAndExpand" Margin="0,10,0,0" IsRunning="True" Color="#aaa" WidthRequest="15" HeightRequest="15"/>
+        </StackLayout>-->
+        <StackLayout>
+            <Label x:Name="nameDevice">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="ListView_ItemTapped" />
+                </Label.GestureRecognizers>
+            </Label>
         </StackLayout>
-       
-        <ListView x:Name="listView"   IsPullToRefreshEnabled="True" Refreshing="ListView_Refreshing" HasUnevenRows="True" SelectionMode="None"   ItemTapped="ListView_ItemTapped">
+
+        <!--<ListView x:Name="listView"   IsPullToRefreshEnabled="True" Refreshing="ListView_Refreshing" HasUnevenRows="True" SelectionMode="None"   ItemTapped="ListView_ItemTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -20,8 +27,8 @@
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
-        
+        </ListView>-->
+
 
 
     </StackLayout>
