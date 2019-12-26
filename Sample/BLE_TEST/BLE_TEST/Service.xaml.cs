@@ -86,10 +86,10 @@ namespace BLE_TEST
                     info_uuid.Text = "UUID:" + SelectCharacteristic.Uuid;
                     info_read.Text = "CallBack UUID:";
                     notify_btn.Text = "Notify";
-                    if (SelectCharacteristic.CanRead())
-                        read_btn.IsVisible = true;
-                    else
-                        read_btn.IsVisible = false;
+                    //if (SelectCharacteristic.CanRead())
+                    //    read_btn.IsVisible = true;
+                    //else
+                    //    read_btn.IsVisible = false;
                     if (SelectCharacteristic.CanWrite())
                         write_btn.IsVisible = true;
                     else
