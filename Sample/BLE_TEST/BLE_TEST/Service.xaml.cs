@@ -1,9 +1,8 @@
-﻿using Quick.Xamarin.BLE;
-using Quick.Xamarin.BLE.Abstractions;
+﻿using Quick.Xamarin.BLE.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -23,12 +22,11 @@ namespace BLE_TEST
             Search.ble.AdapterStatusChange += Ble_AdapterStatusChange;
             Search.ble.ServerCallBackEvent += Ble_ServerCallBackEvent;
             listView.ItemsSource = CharacteristicsList;
-
         }
 
         private void Ble_ServerCallBackEvent(string uuid, byte[] value)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
                 if (SelectCharacteristic != null)
                 {
@@ -39,12 +37,11 @@ namespace BLE_TEST
                     }
                 }
             });
-
         }
 
         private void Ble_AdapterStatusChange(object sender, AdapterConnectStatus e)
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
             {
                 Search.BleStatus = e;
                 if (Search.BleStatus == AdapterConnectStatus.Connected)
@@ -54,7 +51,6 @@ namespace BLE_TEST
                     msg_layout.IsVisible = false;
                     listView.IsVisible = true;
                     ReadCharacteristics();
-
                 }
                 if (Search.BleStatus == AdapterConnectStatus.None)
                 {
@@ -66,12 +62,17 @@ namespace BLE_TEST
         {
             Search.ConnectDevice.CharacteristicsDiscovered(cha =>
             {
-                Device.BeginInvokeOnMainThread(() =>
+                Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
                 {
-                    AllCharacteristics.Add(cha);
-                    CharacteristicsList.Add(new CharacteristicsList(cha.Uuid, cha.CanRead(), cha.CanWrite(), cha.CanNotify()));
+                    Debug.WriteLine($"Character: --- {cha.ToString()}");
+                    if (cha.CanRead() && cha.CanWrite())
+                    {
+                        AllCharacteristics.Add(cha);
+                        CharacteristicsList.Add(new CharacteristicsList(cha.Uuid, cha.CanRead(), cha.CanWrite(), cha.CanNotify()));
+                    }
                 });
             });
+            var inta = CharacteristicsList.Count;
         }
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
@@ -159,13 +160,12 @@ namespace BLE_TEST
                     SelectCharacteristic.StopNotify();
                     SelectCharacteristic.NotifyEvent -= SelectCharacteristic_NotifyEvent;
                 }
-
             }
         }
 
         private void SelectCharacteristic_NotifyEvent(object sender, byte[] value)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
                 string str = BitConverter.ToString(value);
                 info_read.Text = "CallBack UUID:" + str;

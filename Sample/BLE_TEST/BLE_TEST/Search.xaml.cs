@@ -1,12 +1,7 @@
 ﻿using Quick.Xamarin.BLE;
 using Quick.Xamarin.BLE.Abstractions;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace BLE_TEST
@@ -16,8 +11,7 @@ namespace BLE_TEST
         public static AdapterConnectStatus BleStatus;
         public static IBle ble;
         public static IDev ConnectDevice = null;
-        // ObservableCollection<BleList> blelist = new ObservableCollection<BleList>();
-        BleList deviceSignee;
+        Device deviceSignee;
         public static List<IDev> ScanDevices = new List<IDev>();
         public Search()
         {
@@ -26,13 +20,11 @@ namespace BLE_TEST
             //when search devices
             ble.OnScanDevicesIn += Ble_OnScanDevicesIn;
             BleStatus = ble.AdapterConnectStatus;
-            //listView.ItemsSource = blelist;
-
         }
 
         private void Ble_OnScanDevicesIn(object sender, IDev e)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
                 try
                 {
@@ -44,9 +36,9 @@ namespace BLE_TEST
                             if (e.Name.Equals("Signee Settings"))
                             {
                                 ScanDevices.Add(e);
-                                deviceSignee = new BleList(e.Name, e.Uuid);
+                                deviceSignee = new Device(e.Name, e.Uuid);
                                 Debug.WriteLine($"bluetooth: uuid-->{e.Uuid}|| name-->{e.Name}");
-                                nameDevice.Text = $"{deviceSignee.Name}--||--{ deviceSignee.Uuid}";
+                                nameDevice.Text = $"{deviceSignee.Name}-{ deviceSignee.Uuid}";
                             }
                         }
                     }
@@ -57,7 +49,7 @@ namespace BLE_TEST
 
         private async void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            var n = (BleList)e.Item;
+            var n = (Device)e.Item;
             foreach (var dev in ScanDevices)
             {
                 if (n.Uuid == dev.Uuid)
@@ -67,15 +59,14 @@ namespace BLE_TEST
                     {
                         ConnectDevice = dev;
                         ConnectDevice.ConnectToDevice();
-                        Navigation.PushAsync(new Service(), false);
+                        await Navigation.PushAsync(new Service(), false);
                     }
                 }
             }
         }
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             ScanDevices.Clear();
-            // blelist.Clear();
             ble.StartScanningForDevices();
             base.OnAppearing();
         }
@@ -84,13 +75,25 @@ namespace BLE_TEST
             ble.StopScanningForDevices();
             base.OnDisappearing();
         }
-        //private void ListView_Refreshing(object sender, EventArgs e)
-        //{
-        //    ScanDevices.Clear();
-        //    blelist.Clear();
-        //    ScanDevices = new List<IDev>();
-        //    blelist = new ObservableCollection<BleList>();
-        //    listView.EndRefresh();
-        //}
+
+        private async void TapGestureRecognizer_Tapped(object sender, System.EventArgs e)
+        {
+            var raw = ((Label)sender).Text;
+            string[] textt = raw.Split('-');
+            var deviceSn = new Device(textt[0], textt[1]);
+            foreach (var dev in ScanDevices)
+            {
+                if (deviceSn.Uuid == dev.Uuid)
+                {
+                    var check = await DisplayAlert("", "Connecting to  [" + dev.Name + "]", "ok", "cancel");
+                    if (check)
+                    {
+                        ConnectDevice = dev;
+                        ConnectDevice.ConnectToDevice();
+                        await Navigation.PushAsync(new Service(), false);
+                    }
+                }
+            }
+        }
     }
 }
